@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Portfolio content</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body class="admin-theme">
+
+  <!-- Login -->
+  <div class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <h1>Admin sign in</h1>
+      <p class="muted">Manage everything shown on the public site.</p>
+      <label class="field"><span>Password</span><input type="password" name="password" autocomplete="current-password" required autofocus></label>
+      <button class="btn primary block" type="submit" id="loginBtn">Sign in</button>
+      <p class="err" id="loginErr" role="alert"></p>
+    </form>
+  </div>
+
+  <!-- App -->
+  <div class="app" id="app" hidden>
+    <aside class="sidebar">
+      <div class="side-top">
+        <span class="side-brand">Portfolio admin</span>
+        <a class="side-view" href="/" target="_blank" rel="noopener">View site &#8599;</a>
+      </div>
+      <nav class="side-nav" id="sideNav">
+        <button data-panel="profile" class="active">Profile &amp; hero</button>
+        <button data-panel="settings">Site settings</button>
+        <button data-panel="stats">Highlights</button>
+        <button data-panel="skills">Skills</button>
+        <button data-panel="education">Education</button>
+        <button data-panel="experience">Experience</button>
+        <button data-panel="projects">Projects</button>
+        <button data-panel="certifications">Certifications</button>
+        <button data-panel="insights">Market notes</button>
+        <button data-panel="messages">Messages <span class="badge" id="msgBadge" hidden></span></button>
+        <button data-panel="account">Account</button>
+      </nav>
+      <button class="side-logout" id="logoutBtn" type="button">Sign out</button>
+    </aside>
+
+    <main class="content">
+      <header class="content-head">
+        <h1 id="panelTitle">Profile &amp; hero</h1>
+        <div class="save-row">
+          <span class="save-state" id="saveState"></span>
+          <button class="btn primary" id="saveBtn" type="button">Save changes</button>
+        </div>
+      </header>
+
+      <div class="panel" data-panel="profile">
+        <p class="panel-hint">This fills the hero section and contact details on the public site.</p>
+
+        <div class="field">
+          <span>Photo</span>
+          <div class="photo-upload">
+            <div class="photo-preview" id="photoPreview" aria-hidden="true"></div>
+            <div class="photo-controls">
+              <button class="btn" type="button" id="photoPickBtn">Choose photo&hellip;</button>
+              <button class="btn danger" type="button" id="photoRemoveBtn" hidden>Remove photo</button>
+              <p class="photo-hint">JPG, PNG or WEBP, up to 5MB.</p>
+              <p class="photo-status" id="photoStatus" role="status" aria-live="polite"></p>
+            </div>
+            <input type="file" id="photoFile" accept="image/jpeg,image/png,image/webp" hidden>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <label class="field"><span>Full name</span><input data-bind="profile.name" maxlength="100"></label>
+          <label class="field"><span>Headline / title</span><input data-bind="profile.title" maxlength="150" placeholder="e.g. Finance student focused on equity research"></label>
+        </div>
+        <label class="field"><span>Tagline</span><textarea rows="2" data-bind="profile.tagline" maxlength="300"></textarea></label>
+        <div class="grid2">
+          <label class="field"><span>Location</span><input data-bind="profile.location" maxlength="100"></label>
+          <label class="field"><span>Email</span><input type="email" data-bind="profile.email" maxlength="120"></label>
+          <label class="field"><span>Phone</span><input data-bind="profile.phone" maxlength="40"></label>
+          <label class="field"><span>R\u00E9sum\u00E9 URL</span><input data-bind="profile.resumeUrl" maxlength="500" placeholder="https://..."></label>
+          <label class="field"><span>LinkedIn URL</span><input data-bind="profile.linkedin" maxlength="500"></label>
+          <label class="field"><span>GitHub URL</span><input data-bind="profile.github" maxlength="500"></label>
+          <label class="field"><span>X / Twitter URL</span><input data-bind="profile.twitter" maxlength="500"></label>
+        </div>
+        <label class="field"><span>About (use a blank line between paragraphs)</span><textarea rows="9" data-bind="profile.about" maxlength="4000"></textarea></label>
+      </div>
+
+      <div class="panel" data-panel="settings" hidden>
+        <p class="panel-hint">Site-wide options and section visibility.</p>
+        <div class="grid2">
+          <label class="field"><span>Browser tab title</span><input data-bind="settings.siteTitle" maxlength="100"></label>
+          <label class="field"><span>Accent colour</span><input type="color" class="color" data-bind="settings.accent"></label>
+        </div>
+        <label class="field"><span>Footer text</span><input data-bind="settings.footerText" maxlength="200"></label>
+        <h3 class="sub-head">Sections shown on the public site</h3>
+        <div class="switch-grid" id="sectionSwitches"></div>
+      </div>
+
+      <div class="panel" data-panel="stats" hidden>
+        <p class="panel-hint">Up to 6 short numbers shown next to the hero (e.g. GPA, models built).</p>
+        <div id="listStats"></div>
+        <button class="btn add" data-add="stats" type="button">+ Add highlight</button>
+      </div>
+
+      <div class="panel" data-panel="skills" hidden>
+        <p class="panel-hint">Group skills with a category label (e.g. Finance, Tools, Communication). Level is 0-100.</p>
+        <div id="listSkills"></div>
+        <button class="btn add" data-add="skills" type="button">+ Add skill</button>
+      </div>
+
+      <div class="panel" data-panel="education" hidden>
+        <div id="listEducation"></div>
+        <button class="btn add" data-add="education" type="button">+ Add education</button>
+      </div>
+
+      <div class="panel" data-panel="experience" hidden>
+        <div id="listExperience"></div>
+        <button class="btn add" data-add="experience" type="button">+ Add experience</button>
+      </div>
+
+      <div class="panel" data-panel="projects" hidden>
+        <div id="listProjects"></div>
+        <button class="btn add" data-add="projects" type="button">+ Add project</button>
+      </div>
+
+      <div class="panel" data-panel="certifications" hidden>
+        <div id="listCertifications"></div>
+        <button class="btn add" data-add="certifications" type="button">+ Add certification</button>
+      </div>
+
+      <div class="panel" data-panel="insights" hidden>
+        <div id="listInsights"></div>
+        <button class="btn add" data-add="insights" type="button">+ Add note</button>
+      </div>
+
+      <div class="panel" data-panel="messages" hidden>
+        <p class="panel-hint">Messages sent through the public contact form.</p>
+        <div id="messagesList"></div>
+      </div>
+
+      <div class="panel" data-panel="account" hidden>
+        <h3 class="sub-head">Change admin password</h3>
+        <form id="pwForm" class="pw-form">
+          <label class="field"><span>Current password</span><input type="password" name="current" required autocomplete="current-password"></label>
+          <label class="field"><span>New password</span><input type="password" name="next" required minlength="8" autocomplete="new-password"></label>
+          <button class="btn primary" type="submit">Update password</button>
+          <p class="pw-status" id="pwStatus" role="status"></p>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

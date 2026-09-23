@@ -1,0 +1,9 @@
+node_modules
+data/admin.json
+data/secret.json
+data/messages.json
+data/portfolio.json
+.env
+public/uploads/*
+!public/uploads/.gitkeep
+.vercel
