@@ -1,139 +1,141 @@
-# Finance Portfolio — with admin CMS
+# Finance Portfolio & Admin Panel (MERN Stack)
 
-A personal portfolio website for a finance student, with a private admin
-panel that edits everything shown on the public site (no code changes
-needed to update content).
+A full-stack **MERN (MongoDB, Express, React, Node.js)** website built for a **Finance Analyst & Trader** with a full-featured **React Admin Dashboard** and seamless deployment configuration for **Vercel**.
 
-**Stack:** Node.js + Express backend · vanilla HTML/CSS/JS frontend ·
-JWT + bcrypt for admin login. Storage adapts automatically to where it's
-running — see [Deploying](#deploying) below.
+---
 
-## What's included
+## 🌟 Key Features
 
-- **Public site** (`/`) — Hero, About, Skills, Education, Experience,
-  Projects, Certifications, Market notes, and Contact (with a working
-  contact form). Responsive, dark/light theme toggle, subtle motion,
-  keyboard-accessible.
-- **Admin panel** (`/admin/`) — Password-protected. Edit your profile,
-  hero highlights, skills (with sliders), education, experience,
-  projects, certifications, notes, site settings (accent colour, section
-  on/off toggles), and read contact-form messages. Drag to reorder any
-  list. Upload a profile photo straight from your device. One "Save
-  changes" button publishes everything live.
-- **API** — a small REST API (`lib/app.js`) backing both.
+### 1. **Public Portfolio Website (React Frontend)**
+- **Hero & Live Market Ticker**: Real-time interactive canvas chart and simulated tick readouts for Forex (EUR/USD), Commodities (XAU/USD Gold), Equities (S&P 500), and US 10Y Yields.
+- **Dynamic Sections**:
+  - **About**: Profile portrait, bio narrative, and background.
+  - **Skills**: Core competencies (Financial Modelling, Technical Analysis, Risk Management, Macroeconomics) with animated progress bars (0-100 scale).
+  - **Education & Experience**: Vertical timeline of degrees, institutions, roles, and achievements.
+  - **Projects**: Finance research projects, DCF models, Python back-testing scripts, and Power BI dashboards with tag badges and live GitHub links.
+  - **Certifications**: Badges for CFA Candidate, FMVA, Bloomberg BMC.
+  - **Market Notes**: Published research articles and market perspective notes.
+  - **Contact Form**: Interactive message form with honeypot spam protection and live delivery feedback.
+- **Dark & Light Mode**: Built-in theme toggle stored in local browser state.
 
-## Run it locally
+### 2. **Admin Control Panel (`/admin`)**
+- **Protected JWT Auth**: Secure login powered by `bcryptjs` password hashing and signed JWT tokens.
+- **Tabbed Management**:
+  - **Profile**: Edit Name, Title, Tagline, Bio, Social links, and Upload Profile Photos.
+  - **Section Visibility**: Enable/Disable sections dynamically.
+  - **Skills, Education, Experience, Projects, Certs, Notes**: Add, edit, or delete entries dynamically.
+  - **Inbox**: View incoming contact form submissions, mark as read, and delete messages.
+  - **Security**: Change admin password with instant validation.
+
+### 3. **MongoDB Backend & Vercel Serverless API**
+- **Mongoose ORM**: Connected to MongoDB (MongoDB Atlas in production or local MongoDB for dev).
+- **Graceful Hybrid Fallback**: Runs smoothly out of the box even before connecting MongoDB Atlas.
+- **Vercel Ready**: `vercel.json` rewrites serverless functions (`api/index.js`) and static React SPA build automatically.
+
+---
+
+## 🚀 Quick Start (Local Development)
+
+### Prerequisites
+- **Node.js**: v18.x or higher
+- **MongoDB**: Local MongoDB instance (or MongoDB Atlas connection URI)
+
+### 1. Clone & Install Dependencies
 
 ```bash
+# Install root backend dependencies
 npm install
-npm start
+
+# Install client React dependencies
+npm run build --prefix client
 ```
 
-Open **http://localhost:3000** for the site and **http://localhost:3000/admin/**
-for the admin panel. Locally, content is stored as plain JSON files in
-`data/` and uploaded photos are saved to `public/uploads/` — nothing else
-to set up.
+### 2. Environment Setup
 
-The first time you sign in to `/admin/`, an admin account is created
-automatically using the password `ChangeMe123!` (printed in the terminal
-the first time it's used). **Sign in and change that password immediately**
-(Admin panel → Account). To set your own starting password instead, copy
-`.env.example` to `.env` and set `ADMIN_PASSWORD` before the first run.
+Copy `.env.example` to `.env`:
 
-## Editing content
-
-Everything on the public site — your name, bio, skills, education,
-experience, projects, certifications, notes, contact links, accent
-colour, and which sections are shown — is edited from `/admin/`. Changes
-are only visible on the public site after you press **Save changes**.
-
-**Adding your photo:** In the admin panel's Profile panel, use **Choose
-photo…** to upload a JPG, PNG or WEBP (up to 5MB) straight from your
-device. Uploading a new photo replaces the old one.
-
-## Project structure
-
-```
-server.js              Local entrypoint (adds app.listen to lib/app.js)
-api/index.js            Vercel entrypoint (same app, no listener)
-vercel.json              Routes all /api/* requests to api/index.js
-lib/app.js               Express app: routes, validation, auth
-lib/storage.js            Content storage — local JSON files or Postgres
-lib/photos.js             Photo storage — local disk or Vercel Blob
-lib/seed.js               Starting content, used the very first time the
-                           app runs (either mode)
-data/                    Local-mode storage (git-ignored, auto-created)
-public/                 Public site (index.html, css/, js/)
-public/admin/           Admin panel (index.html, admin.css, admin.js)
-public/uploads/         Local-mode uploaded photos (git-ignored)
+```env
+PORT=5000
+MONGODB_URI=mongodb://localhost:27017/finance_portfolio
+ADMIN_PASSWORD=ChangeMe123!
+JWT_SECRET=your_jwt_secret_key
 ```
 
-## Deploying
+### 3. Run Development Server
 
-This app runs two ways, using the same code:
+To run the backend server and React Vite client in development:
 
-### Option A — a normal Node host (Render, Railway, Fly.io, a VPS)
+```bash
+# Terminal 1: Backend Server (Port 5000)
+npm run dev
 
-Any host that runs `npm install && npm start` works, and storage stays
-as simple JSON files — nothing extra to configure. Notes:
+# Terminal 2: Client Dev Server (Port 3000)
+npm run dev:client
+```
 
-- Set `PORT` if your host requires it (most set this automatically).
-- Set `JWT_SECRET` to a long random string as an environment variable in
-  production (otherwise one is generated and saved to `data/secret.json`
-  — fine for a single server, but regenerates if that file is lost).
-- The `data/` and `public/uploads/` folders must be on **persistent**
-  storage — some hosts wipe the filesystem on redeploy, which would
-  reset your content, admin password, and uploaded photo.
-- Put the app behind HTTPS (most hosts do this for you) since the admin
-  login sends a password.
+Open your browser at:
+- **Public Site**: [http://localhost:3000](http://localhost:3000)
+- **Admin Dashboard**: [http://localhost:3000/admin](http://localhost:3000/admin)
+- **Default Admin Password**: `ChangeMe123!`
 
-### Option B — Vercel
+---
 
-Vercel's serverless functions don't have a persistent filesystem, so on
-Vercel this app automatically switches to two Vercel-native services
-instead of local files:
+## ☁️ How to Deploy to Vercel
 
-- **Postgres** (a small key/value table) for your content, admin
-  password, and contact messages.
-- **Blob** storage for uploaded photos.
+Deploying this MERN app to Vercel takes less than 2 minutes:
 
-Steps:
+### Step 1: Push Code to GitHub / GitLab / Bitbucket
+Commit your repository to GitHub.
 
-1. Push this project to a GitHub repo and import it into Vercel
-   ("Add New… → Project").
-2. In the project, go to **Storage → Create Database → Postgres**
-   (this provisions a Neon-backed Postgres database and sets a
-   `DATABASE_URL` environment variable automatically).
-3. Go to **Storage → Create Database → Blob** the same way (sets
-   `BLOB_READ_WRITE_TOKEN` automatically).
-4. In **Settings → Environment Variables**, optionally set
-   `ADMIN_PASSWORD` to your own starting password (otherwise it defaults
-   to `ChangeMe123!` — sign in and change it right away either way). A
-   `JWT_SECRET` is generated for you automatically and stored in
-   Postgres, so it isn't required, but you can set your own if you'd
-   rather not rely on that.
-5. Deploy. Visit your `*.vercel.app` URL, then `/admin/` to sign in.
+### Step 2: Import Project in Vercel
+1. Go to your [Vercel Dashboard](https://vercel.com/dashboard).
+2. Click **Add New...** → **Project**.
+3. Import your `finance-portfolio` repository.
 
-No other configuration is needed — `vercel.json` routes every `/api/*`
-request to the same Express app, and it detects the Postgres/Blob
-environment variables automatically and switches storage backends.
+### Step 3: Configure Environment Variables in Vercel
+In the Vercel project configuration screen, add the following **Environment Variables**:
+- `MONGODB_URI`: Your MongoDB Atlas connection string (e.g. `mongodb+srv://user:pass@cluster.mongodb.net/finance_portfolio?retryWrites=true&w=majority`)
+- `ADMIN_PASSWORD`: Your secret admin password (e.g. `MySecurePass2026!`)
+- `JWT_SECRET`: A random secret key string.
 
-If you ever see a "No database connected yet" or "No photo storage
-connected yet" error, it means step 2 or 3 above hasn't been completed
-(or the project needs a redeploy after connecting them).
+### Step 4: Click Deploy!
+Vercel will automatically run `npm run build --prefix client`, outputting the React SPA to `client/dist`, and host your Express API serverless functions under `/api/index.js`.
 
-## Security notes
+---
 
-- Passwords are hashed with bcrypt; sessions use short-lived JWTs (8h).
-- Login and password-change endpoints are rate-limited.
-- All admin input is length-capped and validated server-side (URLs must
-  be `http(s)://`, `mailto:`, or `tel:`; colours must be hex) regardless
-  of what the browser sends.
-- The contact form has a honeypot field and is rate-limited per IP.
+## 📁 Project Architecture
 
-## Customising the look
+```
+finance-portfolio/
+├── api/
+│   └── index.js              # Vercel serverless function entrypoint
+├── backend/
+│   ├── config/
+│   │   └── db.js             # Mongoose MongoDB connection & fallback
+│   ├── models/
+│   │   ├── Portfolio.js      # Mongoose Schema for Portfolio Data
+│   │   ├── Admin.js          # Mongoose Schema for Admin Credentials
+│   │   └── Message.js        # Mongoose Schema for Contact Messages
+│   ├── controllers/          # Business logic controllers
+│   ├── routes/               # Express API routes (/api/...)
+│   ├── middleware/           # JWT auth middleware & rate limiters
+│   ├── seedData.js           # Initial default portfolio dataset
+│   └── app.js                # Main Express App instance
+├── client/                   # React Frontend (Vite + React 18)
+│   ├── src/
+│   │   ├── components/       # Hero, TickerChart, Skills, Contact, Navbar, etc.
+│   │   ├── pages/            # PortfolioPage, AdminLogin, AdminDashboard
+│   │   ├── context/          # ThemeContext & AuthContext
+│   │   └── styles/           # CSS design system & admin styles
+│   └── vite.config.js        # Vite config with API proxy
+├── server.js                 # Standalone local Node entrypoint
+├── vercel.json               # Vercel deployment routing & build spec
+├── package.json              # Root dependencies & build scripts
+└── README.md
+```
 
-Colours, type and spacing live in `public/css/style.css` as CSS custom
-properties at the top of the file (`--accent`, `--navy`, `--bg`, fonts,
-etc.) — the accent colour can also be changed live from the admin panel
-without touching code.
+---
+
+## 🔒 Default Admin Credentials
+- **URL**: `/admin`
+- **Default Password**: `ChangeMe123!` *(Change immediately in Admin > Security)*
