@@ -35,15 +35,15 @@ app.use('/api', require('./routes/adminRoutes'));
 app.use('/api', require('./routes/messageRoutes'));
 
 // Serve Static Frontend Assets in Production / Local Build
-const clientDistPath = path.join(__dirname, '..', 'client', 'dist');
-app.use(express.static(clientDistPath));
+const frontendDistPath = path.join(__dirname, '..', 'frontend', 'dist');
+app.use(express.static(frontendDistPath));
 
 // SPA fallback for non-API client side routes
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) return next();
-  res.sendFile(path.join(clientDistPath, 'index.html'), (err) => {
+  res.sendFile(path.join(frontendDistPath, 'index.html'), (err) => {
     if (err) {
-      res.status(404).send('Frontend asset not found. Please run "npm run build" to build the React application.');
+      res.status(404).send('Frontend asset not found. Please run "npm run build --prefix frontend" to build the React application.');
     }
   });
 });

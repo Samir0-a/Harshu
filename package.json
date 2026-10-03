@@ -2,13 +2,14 @@
   "name": "finance-portfolio-mern",
   "version": "1.0.0",
   "private": true,
-  "description": "Full MERN Stack Portfolio website for Finance Analyst with React Admin Panel and Vercel Serverless Express API",
-  "main": "server.js",
+  "description": "Full MERN Stack Portfolio website with modular frontend and backend folders",
+  "main": "backend/server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
-    "dev:client": "npm run dev --prefix client",
-    "build": "npm run build --prefix client"
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js",
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build": "npm run build --prefix frontend"
   },
   "engines": {
     "node": ">=18.x"
