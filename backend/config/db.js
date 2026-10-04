@@ -8,7 +8,7 @@ let fallbackMode = false;
 const connectDB = async () => {
   if (isConnected) return;
 
-  const mongoURI = process.env.MONGODB_URI || 'mongodb+srv://samirsatgauwa00_db_user:<db_password>@cluster0.rmm12y0.mongodb.net/?appName=Cluster0';
+  const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/finance_portfolio';
   
   try {
     const db = await mongoose.connect(mongoURI, {
