@@ -31,6 +31,12 @@ const updatePortfolio = async (req, res, next) => {
     const { isConnected } = getDBStatus();
 
     if (!isConnected) {
+      if (process.env.NODE_ENV === 'production') {
+        return res.status(503).json({
+          error: 'MongoDB is not connected. Portfolio changes cannot be saved. Set MONGODB_URI in Vercel and redeploy.'
+        });
+      }
+
       memoryPortfolio = { ...memoryPortfolio, ...data };
       return res.json(memoryPortfolio);
     }

@@ -15,8 +15,10 @@ export const AdminDashboard = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
+  const [databaseConnected, setDatabaseConnected] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [saveError, setSaveError] = useState('');
 
   // Password state
   const [passState, setPassState] = useState({ current: '', next: '', confirm: '' });
@@ -35,9 +37,10 @@ export const AdminDashboard = () => {
     setLoading(true);
     setLoadError('');
     try {
-      const [portRes, msgRes] = await Promise.all([
+      const [portRes, msgRes, statusRes] = await Promise.all([
         fetch('/api/admin/portfolio', { headers: authHeader() }),
-        fetch('/api/admin/messages', { headers: authHeader() })
+        fetch('/api/admin/messages', { headers: authHeader() }),
+        fetch('/api/status')
       ]);
 
       if (portRes.status === 401 || msgRes.status === 401) {
@@ -53,9 +56,14 @@ export const AdminDashboard = () => {
         throw new Error('Could not load the admin dashboard. Please try again.');
       }
 
-      const [portfolioData, messageData] = await Promise.all([portRes.json(), msgRes.json()]);
+      const [portfolioData, messageData, statusData] = await Promise.all([
+        portRes.json(),
+        msgRes.json(),
+        statusRes.ok ? statusRes.json() : Promise.resolve(null)
+      ]);
       setPortfolio(portfolioData);
       setMessages(messageData);
+      setDatabaseConnected(statusData?.database === 'connected');
     } catch (err) {
       console.error('Failed to load admin data:', err);
       setLoadError(err.message || 'Could not load the admin dashboard. Please try again.');
@@ -67,6 +75,7 @@ export const AdminDashboard = () => {
   const handleSavePortfolio = async () => {
     setSaving(true);
     setSaveMessage('');
+    setSaveError('');
     try {
       const res = await fetch('/api/admin/portfolio', {
         method: 'PUT',
@@ -74,13 +83,13 @@ export const AdminDashboard = () => {
         body: JSON.stringify(portfolio)
       });
 
-      if (!res.ok) throw new Error('Save failed.');
       const updated = await res.json();
+      if (!res.ok) throw new Error(updated.error || 'Save failed.');
       setPortfolio(updated);
       setSaveMessage('Portfolio updated successfully!');
       setTimeout(() => setSaveMessage(''), 4000);
     } catch (err) {
-      alert(err.message);
+      setSaveError(err.message);
     } finally {
       setSaving(false);
     }
@@ -90,6 +99,9 @@ export const AdminDashboard = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    setSaving(true);
+    setSaveError('');
+    setSaveMessage('Uploading and saving photo…');
     const formData = new FormData();
     formData.append('photo', file);
 
@@ -102,12 +114,27 @@ export const AdminDashboard = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Photo upload failed');
 
-      setPortfolio(prev => ({
-        ...prev,
-        profile: { ...prev.profile, photo: data.url }
-      }));
+      const updatedPortfolio = {
+        ...portfolio,
+        profile: { ...portfolio.profile, photo: data.url }
+      };
+      const saveRes = await fetch('/api/admin/portfolio', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...authHeader() },
+        body: JSON.stringify(updatedPortfolio)
+      });
+      const savedPortfolio = await saveRes.json();
+      if (!saveRes.ok) throw new Error(savedPortfolio.error || 'Photo could not be saved.');
+
+      setPortfolio(savedPortfolio);
+      setSaveMessage('Photo uploaded and saved.');
+      setTimeout(() => setSaveMessage(''), 4000);
     } catch (err) {
-      alert(err.message);
+      setSaveMessage('');
+      setSaveError(err.message || 'Photo upload failed.');
+    } finally {
+      setSaving(false);
+      e.target.value = '';
     }
   };
 
@@ -223,6 +250,18 @@ export const AdminDashboard = () => {
       {saveMessage && (
         <div style={{ background: 'rgba(16, 185, 129, 0.15)', color: 'var(--success)', padding: '0.85rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <CheckCircle size={18} /> {saveMessage}
+        </div>
+      )}
+
+      {saveError && (
+        <div role="alert" style={{ background: 'rgba(239, 68, 68, 0.12)', color: 'var(--danger)', padding: '0.85rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          {saveError}
+        </div>
+      )}
+
+      {databaseConnected === false && (
+        <div role="status" style={{ background: 'rgba(245, 158, 11, 0.14)', color: 'var(--text-primary)', padding: '0.85rem 1.25rem', borderRadius: '8px', marginBottom: '1.5rem' }}>
+          MongoDB is not connected. Changes and uploaded photos will not persist until MONGODB_URI is set in Vercel and the project is redeployed.
         </div>
       )}
 
