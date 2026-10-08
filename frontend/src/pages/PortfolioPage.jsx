@@ -48,11 +48,11 @@ export const PortfolioPage = () => {
     );
   }
 
-  const { profile, settings, sections, skills, education, experience, projects, certifications, insights } = data || {};
+  const { profile, sections, skills, education, experience, projects, certifications, insights } = data || {};
 
   return (
     <div>
-      <Navbar profile={profile} settings={settings} sections={sections} />
+      <Navbar profile={profile} sections={sections} />
       <Hero profile={profile} />
 
       {sections?.about !== false && <About profile={profile} />}
@@ -64,7 +64,7 @@ export const PortfolioPage = () => {
       {sections?.insights !== false && <Insights insights={insights} />}
       {sections?.contact !== false && <Contact profile={profile} />}
 
-      <Footer settings={settings} />
+      <Footer />
     </div>
   );
 };

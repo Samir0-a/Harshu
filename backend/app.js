@@ -4,7 +4,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const { connectDB } = require('./config/db');
+const { connectDB, getDBStatus } = require('./config/db');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -27,8 +27,17 @@ app.use((req, res, next) => {
   next();
 });
 
-// Connect to MongoDB
-connectDB();
+// Start the database connection once, and let API requests wait for its result.
+// This avoids serving a false in-memory result while MongoDB is still connecting.
+const databaseReady = connectDB();
+app.use('/api', (req, res, next) => {
+  databaseReady.then(() => next(), next);
+});
+
+app.get('/api/status', (req, res) => {
+  const { isConnected } = getDBStatus();
+  res.json({ database: isConnected ? 'connected' : 'fallback' });
+});
 
 // API Routes
 app.use('/api', require('./routes/portfolioRoutes'));

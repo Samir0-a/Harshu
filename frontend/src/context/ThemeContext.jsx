@@ -5,17 +5,25 @@ const ThemeContext = createContext();
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
     try {
-      const saved = localStorage.getItem('theme');
-      if (saved) return saved;
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    } catch {
+      const saved = localStorage.getItem('portfolio-theme-v2');
+      if (saved === 'light' || saved === 'dark') return saved;
       return 'dark';
+    } catch {
+      return 'light';
     }
   });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute(
+      'content',
+      theme === 'dark' ? '#0a0f18' : '#f8fafc'
+    );
+    try {
+      localStorage.setItem('portfolio-theme-v2', theme);
+    } catch {
+      // The current theme still applies when browser storage is unavailable.
+    }
   }, [theme]);
 
   const toggleTheme = () => {

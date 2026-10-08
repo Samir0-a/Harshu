@@ -1,17 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon, Menu, X, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const Navbar = ({ profile, settings, sections }) => {
+export const Navbar = ({ profile, sections }) => {
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setMobileMenuOpen(false);
+    };
+
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [mobileMenuOpen]);
 
   const brandMark = profile?.name
     ? profile.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
     : 'HC';
 
-  const brandName = settings?.siteTitle || profile?.name || 'Harshanand Chaudhary';
+  const brandName = 'Harshu Chaudhary';
 
   const navItems = [
     { key: 'about', label: 'About' },
@@ -28,11 +39,13 @@ export const Navbar = ({ profile, settings, sections }) => {
     <header className="nav">
       <div className="wrap nav-inner">
         <a href="#top" className="brand">
-          <span className="brand-mark">{brandMark}</span>
+          <span className="brand-mark">
+            {profile?.photo ? <img className="brand-photo" src={profile.photo} alt="" /> : brandMark}
+          </span>
           <span className="brand-name">{brandName}</span>
         </a>
 
-        <nav className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
+        <nav id="primary-navigation" aria-label="Primary navigation" className={`nav-links ${mobileMenuOpen ? 'open' : ''}`}>
           {navItems.map(item => (
             <a key={item.key} href={`#${item.key}`} onClick={() => setMobileMenuOpen(false)}>
               {item.label}
@@ -41,7 +54,7 @@ export const Navbar = ({ profile, settings, sections }) => {
         </nav>
 
         <div className="nav-actions">
-          <button className="icon-btn" onClick={toggleTheme} aria-label="Toggle Theme" title="Toggle Dark/Light Mode">
+          <button type="button" className="icon-btn" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title="Toggle dark or light mode">
             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
@@ -51,8 +64,11 @@ export const Navbar = ({ profile, settings, sections }) => {
 
           <button
             className="icon-btn menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Menu"
+            type="button"
+            onClick={() => setMobileMenuOpen(open => !open)}
+            aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="primary-navigation"
           >
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
