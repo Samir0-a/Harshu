@@ -14,6 +14,7 @@ export const AdminDashboard = () => {
   const [portfolio, setPortfolio] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
@@ -32,16 +33,32 @@ export const AdminDashboard = () => {
 
   const fetchData = async () => {
     setLoading(true);
+    setLoadError('');
     try {
       const [portRes, msgRes] = await Promise.all([
         fetch('/api/admin/portfolio', { headers: authHeader() }),
         fetch('/api/admin/messages', { headers: authHeader() })
       ]);
 
-      if (portRes.ok) setPortfolio(await portRes.json());
-      if (msgRes.ok) setMessages(await msgRes.json());
+      if (portRes.status === 401 || msgRes.status === 401) {
+        logout();
+        navigate('/admin/login', {
+          replace: true,
+          state: { message: 'Your admin session expired. Please sign in again.' }
+        });
+        return;
+      }
+
+      if (!portRes.ok || !msgRes.ok) {
+        throw new Error('Could not load the admin dashboard. Please try again.');
+      }
+
+      const [portfolioData, messageData] = await Promise.all([portRes.json(), msgRes.json()]);
+      setPortfolio(portfolioData);
+      setMessages(messageData);
     } catch (err) {
       console.error('Failed to load admin data:', err);
+      setLoadError(err.message || 'Could not load the admin dashboard. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -150,10 +167,35 @@ export const AdminDashboard = () => {
     }
   };
 
-  if (loading || !portfolio) {
+  if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-primary)' }}>
         <p>Loading Dashboard...</p>
+      </div>
+    );
+  }
+
+  if (loadError || !portfolio) {
+    return (
+      <div className="admin-layout wrap" style={{ paddingBottom: '80px' }}>
+        <div className="admin-card" role="alert" style={{ maxWidth: '560px', margin: '0 auto' }}>
+          <h1 style={{ fontFamily: 'var(--font-heading)', fontSize: '1.75rem', marginBottom: '0.75rem' }}>
+            Dashboard unavailable
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
+            {loadError || 'The portfolio data was not returned by the server.'}
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <button type="button" className="btn primary" onClick={fetchData}>Try again</button>
+            <button
+              type="button"
+              className="btn secondary"
+              onClick={() => { logout(); navigate('/admin/login'); }}
+            >
+              Sign in again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }

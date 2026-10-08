@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ShieldCheck, Lock, AlertCircle, ArrowLeft } from 'lucide-react';
 
 export const AdminLogin = () => {
@@ -9,6 +9,8 @@ export const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const notice = location.state?.message || '';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -61,6 +63,12 @@ export const AdminLogin = () => {
             Sign in to manage portfolio content & settings
           </p>
         </div>
+
+        {notice && (
+          <p role="status" style={{ color: 'var(--text-secondary)', marginBottom: '1rem', fontSize: '0.9rem' }}>
+            {notice}
+          </p>
+        )}
 
         {error && (
           <div style={{

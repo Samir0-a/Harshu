@@ -9,7 +9,9 @@ import './styles/index.css';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  return isAuthenticated ? children : <Navigate to="/admin/login" replace />;
+  return isAuthenticated
+    ? children
+    : <Navigate to="/admin/login" replace state={{ message: 'Sign in to open the admin dashboard.' }} />;
 };
 
 function AppRoutes() {
